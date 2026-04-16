@@ -235,6 +235,64 @@ public class DeptController {
 
         return "redirect:/dept/" + deptUpper;
     }
+    
+    
+    //========FOR ROUTING TICKS IN DIFF DEPT=====================
+    @PreAuthorize("@deptAccessService.canAccessDept(authentication, #dept)")
+    @PostMapping("/{dept}/route/{id}")
+    public String routeTicket(
+            @PathVariable String dept,
+            @PathVariable Long id,
+            @RequestParam String newDept,
+            Authentication auth
+    ) {
+
+        String fromDept = dept.toUpperCase();
+        String targetDept = newDept == null ? "" : newDept.trim().toUpperCase();
+
+        if (departmentRepository.findByCode(fromDept).isEmpty()) {
+            return "redirect:/admin/config?invalidDept";
+        }
+
+        if (targetDept.isBlank() || departmentRepository.findByCode(targetDept).isEmpty()) {
+            return "redirect:/dept/" + fromDept + "?invalidRouteDept";
+        }
+
+        if (fromDept.equals(targetDept)) {
+            return "redirect:/dept/" + fromDept + "?sameDept";
+        }
+
+        String actor = (auth != null ? auth.getName() : "UNKNOWN");
+
+        Ticket t = ticketRepository.findById(id).orElseThrow();
+
+        // Safety: only allow rerouting tickets that currently belong to this department
+        if (t.getDepartment() == null || !fromDept.equalsIgnoreCase(t.getDepartment())) {
+            return "redirect:/dept/" + fromDept;
+        }
+
+        Ticket before = snapshot(t);
+
+        // Option A: rerouted ticket becomes WAITING in the new department
+        t.setDepartment(targetDept);
+        t.setStatus("WAITING");
+
+        Ticket after = ticketRepository.save(t);
+
+        historyService.log(
+                "ROUTE",
+                before,
+                after,
+                actor,
+                "Rerouted from " + fromDept + " to " + targetDept
+        );
+
+        realtimePushService.pushLobbySnapshot();
+        realtimePushService.pushDeptSnapshot(fromDept);
+        realtimePushService.pushDeptSnapshot(targetDept);
+
+        return "redirect:/dept/" + fromDept + "?routed";
+    }
 
     @PreAuthorize("@deptAccessService.canAccessDept(authentication, #dept)")
     @GetMapping("/{dept}/history/{id}")
