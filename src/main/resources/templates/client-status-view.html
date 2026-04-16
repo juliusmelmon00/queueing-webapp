@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Queue Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="refresh" content="5">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f4f7fb, #eaf1ff);
+      min-height: 100vh;
+      padding: 24px;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .main-card {
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 32px 24px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+    }
+
+    .hero-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+
+    .queue-no {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+
+    .status-row {
+      margin-top: 16px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .message {
+      margin-top: 14px;
+      font-size: 15px;
+      line-height: 1.5;
+      opacity: 0.98;
+    }
+
+    .content {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .section {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .detail-item,
+    .extra-field-item {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .detail-label,
+    .extra-field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .detail-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .extra-fields-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .extra-field-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .now-serving-box {
+      text-align: center;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .now-serving-queue {
+      font-size: 34px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .now-serving-status {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #6b7280;
+      font-style: italic;
+      padding: 10px 0;
+    }
+
+    .ahead-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ahead-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 42px;
+      padding: 0 14px;
+      background: #2563eb;
+      color: white;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .ahead-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .ahead-chip {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid #dbeafe;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .refresh-note {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    .status-waiting {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .status-called {
+      background: #dbeafe;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .status-inservice {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status-done {
+      background: #e5e7eb;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    @media (max-width: 640px) {
+      .queue-no {
+        font-size: 40px;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .detail-grid,
+      .extra-fields-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 26px 18px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="main-card">
+
+    <div class="hero">
+      <p class="hero-title">Your Queue Number</p>
+      <h1 class="queue-no" th:text="${queueNo}">A001</h1>
+
+      <div class="status-row">
+        <span class="status-badge"
+              th:text="${status}"
+              th:classappend="${
+                status == 'WAITING' ? ' status-waiting' :
+                status == 'CALLED' ? ' status-called' :
+                status == 'IN_SERVICE' ? ' status-inservice' :
+                status == 'DONE' ? ' status-done' : ''
+              }">
+          WAITING
+        </span>
+      </div>
+
+      <div class="message" th:text="${statusMessage}">
+        Please wait. You are in queue.
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="section">
+        <h3 class="section-title">Ticket Details</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Department</div>
+            <div class="detail-value" th:text="${department}">RECRUITMENT</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Current Status</div>
+            <div class="detail-value" th:text="${status}">WAITING</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" th:if="${extraFields != null and !#lists.isEmpty(extraFields)}">
+        <h3 class="section-title">Additional Information</h3>
+
+        <div class="extra-fields-grid">
+          <div th:each="f : ${extraFields}" class="extra-field-item">
+            <div class="extra-field-label" th:text="${f.fieldLabel}">Middle Name</div>
+            <div class="extra-field-value" th:text="${f.fieldValue}">Cruz</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Now Serving in Your Department</h3>
+
+        <div th:if="${nowServing != null}" class="now-serving-box">
+          <div class="now-serving-queue" th:text="${nowServing.queueNo}">A014</div>
+          <div class="now-serving-status" th:text="${nowServing.status}">CALLED</div>
+        </div>
+
+        <div th:if="${nowServing == null}" class="empty-state">
+          No ticket is currently being served in your department.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="ahead-top">
+          <h3 class="section-title" style="margin:0;">People Ahead of You</h3>
+          <div class="ahead-count" th:text="${aheadCount}">0</div>
+        </div>
+
+        <div th:if="${aheadCount > 0}">
+          <div class="ahead-list">
+            <span th:each="t : ${aheadList}" class="ahead-chip" th:text="${t.queueNo}">
+              A013
+            </span>
+          </div>
+        </div>
+
+        <div th:if="${aheadCount == 0}" class="empty-state">
+          Good news — no one is ahead of you in this department.
+        </div>
+      </div>
+
+      <div class="refresh-note">This page updates automatically every 5 seconds.</div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

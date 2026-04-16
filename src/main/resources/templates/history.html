@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket History</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 32px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h2 {
+      margin: 0 0 20px 0;
+      font-size: 34px;
+    }
+
+    h3 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+    }
+
+    .page-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #e3e3e3;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .ticket-meta {
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .extra-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .extra-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .extra-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .extra-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 950px;
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ececec;
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f4f8ff;
+      color: #1f3b64;
+      font-weight: 700;
+    }
+
+    tr:hover td {
+      background: #fafcff;
+    }
+
+    .back-link {
+      display: inline-block;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      background: #1f6feb;
+      color: white;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      background: #1558c0;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      .section {
+        padding: 18px;
+      }
+
+      .extra-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <h2>Ticket History</h2>
+
+  <div class="section ticket-meta">
+    <strong>Queue No:</strong>
+    <span th:text="${ticket.queueNo}">A001</span><br>
+
+    <strong>Name:</strong>
+    <span th:text="${ticket.firstName + ' ' + ticket.lastName}">Name</span><br>
+
+    <strong>Transaction:</strong>
+    <span th:text="${txDisplay}">Transaction</span><br>
+
+    <strong>Specific Transaction:</strong>
+    <span th:text="${specDisplay}">Specific Transaction</span>
+  </div>
+
+  <div class="section" th:if="${extraFields != null and !#lists.isEmpty(extraFields)}">
+    <h3>Additional Information</h3>
+
+    <div class="extra-grid">
+      <div th:each="f : ${extraFields}" class="extra-item">
+        <div class="extra-label" th:text="${f.fieldLabel}">Middle Name</div>
+        <div class="extra-value" th:text="${f.fieldValue}">Cruz</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Time</th>
+          <th>Action</th>
+          <th>From Dept</th>
+          <th>To Dept</th>
+          <th>From Status</th>
+          <th>To Status</th>
+          <th>By</th>
+          <th>Note</th>
+        </tr>
+
+        <tr th:each="h : ${history}">
+          <td th:text="${h.createdAt}"></td>
+          <td th:text="${h.action}"></td>
+          <td th:text="${h.fromDepartment}"></td>
+          <td th:text="${h.toDepartment}"></td>
+          <td th:text="${h.fromStatus}"></td>
+          <td th:text="${h.toStatus}"></td>
+          <td th:text="${h.performedBy}"></td>
+          <td th:text="${h.note}"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <a class="back-link" th:if="${isAdminView}" th:href="@{/admin/tickets/history}">
+    ⬅ Back to Admin Ticket History
+  </a>
+
+  <a class="back-link" th:if="${!isAdminView}" th:href="@{|/dept/${dept}|}">
+    ⬅ Back to Department
+  </a>
+</div>
+
+</body>
+</html>

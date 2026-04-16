@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Ticket</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .queue {
+            font-size: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .status {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 18px;
+            background: #2563eb;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>Your Queue Number</h1>
+
+    <div class="queue" th:text="${ticket.queueNo}">A001</div>
+
+    <div class="status">
+        Status: <b th:text="${ticket.status}">WAITING</b>
+    </div>
+
+    <p>Please wait for your number to be called.</p>
+
+    <!-- ✅ ADD LINK HERE -->
+    <a th:href="@{/status}" class="btn">
+        Click here to check your ticket status
+    </a>
+
+</div>
+
+</body>
+</html>

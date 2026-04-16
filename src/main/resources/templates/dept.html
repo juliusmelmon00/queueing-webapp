@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}">
+  <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}">
+  <meta name="_csrf_param" th:content="${_csrf != null ? _csrf.parameterName : ''}">
+  <title>Department Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 32px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 42px;
+    }
+
+    h2 {
+      margin: 0 0 20px 0;
+      font-size: 32px;
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+
+    .page-wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .nav a {
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: white;
+      background: #1f6feb;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav a:hover {
+      background: #1558c0;
+    }
+
+    .nav a.active {
+      background: #0f4fb8;
+    }
+
+    .nav form {
+      display: inline;
+      margin: 0;
+    }
+
+    .nav form button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      background: #1f6feb;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav form button:hover {
+      background: #1558c0;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #e3e3e3;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .toolbar {
+      margin: 12px 0 18px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toolbar form {
+      display: inline;
+      margin: 0;
+    }
+
+    .message-warning,
+    .message-info {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+    }
+
+    .message-warning {
+      border: 1px solid #ffe69c;
+      background: #fff8e1;
+      color: #8a6d3b;
+    }
+
+    .message-info {
+      border: 1px solid #b6e0fe;
+      background: #eaf4ff;
+      color: #22577a;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+      padding: 14px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .qno {
+      font-size: 22px;
+      font-weight: bold;
+      min-width: 95px;
+    }
+
+    .status {
+      min-width: 120px;
+      font-weight: bold;
+    }
+
+    .name {
+      min-width: 220px;
+      font-size: 16px;
+    }
+
+    .meta {
+      color: #555;
+      font-size: 14px;
+      min-width: 220px;
+    }
+
+    form {
+      display: inline;
+      margin: 0;
+    }
+
+    button,
+    select {
+      font-size: 14px;
+    }
+
+    button {
+      padding: 11px 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background: #1f6feb;
+      color: white;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #1558c0;
+    }
+
+    select {
+      padding: 11px 12px;
+      border: 1px solid #cfcfcf;
+      border-radius: 10px;
+      background: white;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: #1f6feb;
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+    }
+
+    .next-ticket {
+      border: 2px solid #28a745;
+      background: #eaf8ee;
+    }
+
+    button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .empty-text {
+      color: #555;
+      font-size: 15px;
+    }
+
+    .history-link-btn {
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      h2 {
+        font-size: 26px;
+      }
+
+      .row {
+        align-items: stretch;
+      }
+
+      .qno,
+      .status,
+      .name,
+      .meta {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .nav {
+        flex-direction: column;
+      }
+
+      .nav a,
+      .nav form,
+      .nav form button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="page-wrap">
+
+  <h1>Department Dashboard</h1>
+  <h2 th:text="${departmentName != null ? departmentName : #strings.replace(dept, '_', ' ')}">RECRUITMENT</h2>
+
+  <div class="toolbar">
+    <form th:action="@{|/dept/${dept}/next|}" method="post">
+      <button id="btnNext" type="submit"
+              th:disabled="${hasActive or #lists.isEmpty(waiting)}"
+              th:attr="title=${hasActive ? 'Finish active ticket first' : (#lists.isEmpty(waiting) ? 'No waiting tickets' : 'Call next (FIFO)')}">
+        NEXT
+      </button>
+    </form>
+  </div>
+
+  <div th:if="${param.activeExists != null}" class="message-warning">
+    <b>⚠ One-active-ticket rule:</b>
+    Finish the current <b>CALLED / IN_SERVICE</b> ticket before calling the next one.
+  </div>
+
+  <div th:if="${param.noWaiting != null}" class="message-info">
+    <b>ℹ No waiting tickets:</b> There’s nothing to call right now.
+  </div>
+
+  <div class="nav" th:if="${isAdmin}">
+    <a th:each="d : ${departments}"
+       th:href="@{|/dept/${d}|}"
+       th:text="${#strings.replace(d, '_', ' ')}"
+       th:classappend="${dept == d ? 'active' : ''}">
+      Department
+    </a>
+
+    <a th:href="@{/lobby}" target="_blank">Lobby Monitor</a>
+  </div>
+
+  <div class="nav">
+    <form th:action="@{/logout}" method="post">
+      <button type="submit">Logout</button>
+    </form>
+  </div>
+
+  <div class="section">
+    <h3>ACTIVE</h3>
+    <div th:if="${#lists.isEmpty(active)}" class="empty-text">No active tickets.</div>
+
+    <div id="activeBox">
+      <div th:each="t : ${active}" class="row">
+
+        <div class="qno" th:text="${t.queueNo}">A001</div>
+        <div class="status" th:text="${t.status}">CALLED</div>
+        <div class="name" th:text="${t.firstName + ' ' + t.lastName}">Name</div>
+        <div class="meta"
+             th:text="${'TX: '
+                + (txNameMap[t.transactionType != null ? #strings.toUpperCase(t.transactionType) : ''] != null
+                    ? txNameMap[#strings.toUpperCase(t.transactionType)]
+                    : t.transactionType)
+                + ((t.specificTransaction != null and !#strings.isEmpty(t.specificTransaction))
+                    ? ' - ' + (specTxNameMap[#strings.toUpperCase(t.specificTransaction)] != null
+                        ? specTxNameMap[#strings.toUpperCase(t.specificTransaction)]
+                        : t.specificTransaction)
+                    : '')
+             }">meta</div>
+
+        <form th:if="${t.status == 'CALLED'}"
+              th:action="@{|/dept/${dept}/in-service/${t.id}|}" method="post">
+          <button type="submit">IN SERVICE</button>
+        </form>
+
+        <form th:if="${t.status == 'IN_SERVICE'}"
+              th:action="@{|/dept/${dept}/done/${t.id}|}" method="post">
+          <button type="submit">DONE</button>
+        </form>
+
+        <form th:action="@{|/dept/${dept}/route/${t.id}|}" method="post">
+          <select name="newDept" required>
+            <option value="" selected disabled>Select department</option>
+            <option th:each="d : ${departments}"
+                    th:value="${d}"
+                    th:text="${#strings.replace(d, '_', ' ')}">
+            </option>
+          </select>
+          <button type="submit">SET DEPARTMENT</button>
+        </form>
+
+        <a class="history-link-btn" th:href="@{|/dept/${dept}/history/${t.id}|}">
+          <button type="button">VIEW HISTORY</button>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>WAITING</h3>
+    <div th:if="${#lists.isEmpty(waiting)}" class="empty-text">No waiting tickets.</div>
+
+    <div id="waitingBox">
+      <div th:each="t : ${waiting}"
+           class="row"
+           th:classappend="${t.id == nextTicketId} ? ' next-ticket' : ''">
+
+        <div class="qno" th:text="${t.queueNo}">A002</div>
+        <div class="status" th:text="${t.status}">WAITING</div>
+        <div class="name" th:text="${t.firstName + ' ' + t.lastName}">Name</div>
+        <div class="meta"
+             th:text="${'TX: '
+                + (txNameMap[t.transactionType != null ? #strings.toUpperCase(t.transactionType) : ''] != null
+                    ? txNameMap[#strings.toUpperCase(t.transactionType)]
+                    : t.transactionType)
+                + ((t.specificTransaction != null and !#strings.isEmpty(t.specificTransaction))
+                    ? ' - ' + (specTxNameMap[#strings.toUpperCase(t.specificTransaction)] != null
+                        ? specTxNameMap[#strings.toUpperCase(t.specificTransaction)]
+                        : t.specificTransaction)
+                    : '')
+             }">meta</div>
+
+        <form th:action="@{|/dept/${dept}/call/${t.id}|}" method="post">
+          <button type="submit"
+                  th:disabled="${hasActive}"
+                  th:title="${hasActive ? 'Finish active ticket first' : 'Call this ticket'}">
+            CALL
+          </button>
+        </form>
+
+        <form th:action="@{|/dept/${dept}/route/${t.id}|}" method="post">
+          <select name="newDept" required>
+            <option value="" selected disabled>Select department</option>
+            <option th:each="d : ${departments}"
+                    th:value="${d}"
+                    th:text="${#strings.replace(d, '_', ' ')}">
+            </option>
+          </select>
+          <button type="submit">SET DEPARTMENT</button>
+        </form>
+
+        <a class="history-link-btn" th:href="@{|/dept/${dept}/history/${t.id}|}">
+          <button type="button">VIEW HISTORY</button>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("submit", (e) => {
+    const btn = e.target.querySelector("button[type='submit']");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Working...";
+    }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script th:inline="javascript">
+  const dept = /*[[${dept}]]*/ "RECRUITMENT";
+  const departments = /*[[${departments}]]*/ [];
+  
+
+  function esc(s) {
+    return (s ?? "").toString()
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function upper(s) {
+    return (s ?? "").toString().trim().toUpperCase();
+  }
+
+  
+
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content") || "";
+  const csrfParam = document.querySelector('meta[name="_csrf_param"]')?.getAttribute("content") || "";
+
+  function csrfInputHtml() {
+    if (!csrfToken || !csrfParam) return "";
+    return `<input type="hidden" name="${esc(csrfParam)}" value="${esc(csrfToken)}">`;
+  }
+
+  function buildDeptOptions() {
+    return `
+      <option value="" selected disabled>Select department</option>
+      ${departments.map(d => {
+        const label = d.replaceAll("_", " ");
+        return `<option value="${esc(d)}">${esc(label)}</option>`;
+      }).join("")}
+    `;
+  }
+
+  function hasActiveNow() {
+    return (document.getElementById("activeBox")?.children?.length || 0) > 0;
+  }
+
+  function hasWaitingNow() {
+    return (document.getElementById("waitingBox")?.children?.length || 0) > 0;
+  }
+
+  function buildRow(t, boxType) {
+    const qno = esc(t.queueNo);
+    const st = esc(t.status);
+    const name = esc((t.firstName || "") + " " + (t.lastName || ""));
+    const meta = "TX: " + (t.txDisplay || "");
+
+    let actionBtns = "";
+
+    if (boxType === "waiting") {
+      const disabled = hasActiveNow();
+
+      actionBtns = `
+        <form action="/dept/${esc(dept)}/call/${t.id}" method="post">
+          ${csrfInputHtml()}
+          <button type="submit"
+                  ${disabled ? "disabled" : ""}
+                  title="${disabled ? "Finish active ticket first" : "Call this ticket"}">
+            CALL
+          </button>
+        </form>
+      `;
+    } else {
+      if (t.status === "CALLED") {
+        actionBtns = `
+          <form action="/dept/${esc(dept)}/in-service/${t.id}" method="post">
+            ${csrfInputHtml()}
+            <button type="submit">IN SERVICE</button>
+          </form>
+        `;
+      } else if (t.status === "IN_SERVICE") {
+        actionBtns = `
+          <form action="/dept/${esc(dept)}/done/${t.id}" method="post">
+            ${csrfInputHtml()}
+            <button type="submit">DONE</button>
+          </form>
+        `;
+      }
+    }
+
+    const routeForm = `
+      <form action="/dept/${esc(dept)}/route/${t.id}" method="post">
+        ${csrfInputHtml()}
+        <select name="newDept" required>
+          ${buildDeptOptions()}
+        </select>
+        <button type="submit">SET DEPARTMENT</button>
+      </form>
+    `;
+
+    const historyBtn = `
+      <a class="history-link-btn" href="/dept/${esc(dept)}/history/${t.id}">
+        <button type="button">VIEW HISTORY</button>
+      </a>
+    `;
+
+    return `
+      <div class="row">
+        <div class="qno">${qno}</div>
+        <div class="status">${st}</div>
+        <div class="name">${name}</div>
+        <div class="meta">${esc(meta)}</div>
+        ${actionBtns}
+        ${routeForm}
+        ${historyBtn}
+      </div>
+    `;
+  }
+
+  function renderSection(boxId, tickets, boxType) {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+
+    box.innerHTML = "";
+    if (!tickets || tickets.length === 0) return;
+
+    tickets.forEach(t => {
+      box.innerHTML += buildRow(t, boxType);
+    });
+  }
+
+  function enforceCallButtons() {
+    const disabled = hasActiveNow();
+    document.querySelectorAll('#waitingBox form[action*="/call/"] button[type="submit"]').forEach(btn => {
+      btn.disabled = disabled;
+      btn.title = disabled ? "Finish active ticket first" : "Call this ticket";
+    });
+  }
+
+  function enforceNextButton() {
+    const btn = document.getElementById("btnNext");
+    if (!btn) return;
+
+    const disabled = hasActiveNow() || !hasWaitingNow();
+    btn.disabled = disabled;
+
+    if (hasActiveNow()) btn.title = "Finish active ticket first";
+    else if (!hasWaitingNow()) btn.title = "No waiting tickets";
+    else btn.title = "Call next (FIFO)";
+  }
+
+  function connectDeptWs() {
+    const sock = new SockJS("/ws");
+    const stomp = Stomp.over(sock);
+    stomp.debug = null;
+
+    stomp.connect({}, function () {
+      stomp.subscribe("/topic/dept/" + dept, (msg) => {
+        const data = JSON.parse(msg.body);
+
+        if (Array.isArray(data.active)) {
+          renderSection("activeBox", data.active, "active");
+        }
+        if (Array.isArray(data.waiting)) {
+          renderSection("waitingBox", data.waiting, "waiting");
+        }
+
+        enforceCallButtons();
+        enforceNextButton();
+      });
+    });
+  }
+
+  enforceCallButtons();
+  enforceNextButton();
+  connectDeptWs();
+</script>
+
+</body>
+</html>

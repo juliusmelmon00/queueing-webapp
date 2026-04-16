@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Client Form Field</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e3e3e3;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-row > div {
+            min-width: 200px;
+            flex: 1;
+        }
+
+        label {
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #1f6feb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #1558c0;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #565e64;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <h1>Edit Client Form Field</h1>
+
+        <form th:action="@{|/admin/config/client-fields/${clientField.id}/edit|}" method="post">
+            <div class="form-row">
+                <div>
+                    <label>Label</label>
+                    <input type="text" name="label" th:value="${clientField.label}" required>
+                </div>
+
+                <div>
+                    <label>Field Code</label>
+                    <input type="text" name="fieldCode" th:value="${clientField.fieldCode}" required>
+                </div>
+
+                <div>
+                    <label>Field Type</label>
+                    <select name="fieldType" required>
+                        <option value="TEXT" th:selected="${clientField.fieldType == 'TEXT'}">TEXT</option>
+                        <option value="NUMBER" th:selected="${clientField.fieldType == 'NUMBER'}">NUMBER</option>
+                        <option value="DATE" th:selected="${clientField.fieldType == 'DATE'}">DATE</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Placeholder</label>
+                    <input type="text" name="placeholder" th:value="${clientField.placeholder}">
+                </div>
+
+                <div>
+                    <label>Required</label>
+                    <select name="isRequired">
+                        <option value="true" th:selected="${clientField.isRequired}">YES</option>
+                        <option value="false" th:selected="${!clientField.isRequired}">NO</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Active</label>
+                    <select name="isActive">
+                        <option value="true" th:selected="${clientField.isActive}">YES</option>
+                        <option value="false" th:selected="${!clientField.isActive}">NO</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Display Order</label>
+                    <input type="number" name="displayOrder" th:value="${clientField.displayOrder}" min="1" required>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn">Update Field</button>
+                <a th:href="@{/admin/config}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

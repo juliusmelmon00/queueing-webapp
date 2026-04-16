@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Admin Ticket History</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 32px;
+        background: #f7f7f7;
+        color: #222;
+    }
+
+    .page-wrap {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .container {
+        background: white;
+        padding: 28px;
+        border: 1px solid #e3e3e3;
+        border-radius: 18px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .top-links {
+        margin-bottom: 18px;
+    }
+
+    .back-link {
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 10px;
+        background: #e9ecef;
+        color: #222;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        background: #dfe3e6;
+    }
+
+    h1 {
+        margin: 0 0 24px 0;
+        font-size: 42px;
+    }
+
+    h2 {
+        margin: 0 0 16px 0;
+        font-size: 30px;
+    }
+
+    .section-title {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #222;
+    }
+
+    .summary-cards,
+    .department-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .summary-card,
+    .department-card {
+        background: #fff;
+        border: 1px solid #e3e3e3;
+        border-radius: 16px;
+        min-height: 110px;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .summary-card .label,
+    .department-card .dept-name {
+        font-size: 15px;
+        color: #555;
+        font-weight: 600;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .summary-card .value,
+    .department-card .dept-count {
+        font-size: 40px;
+        font-weight: 700;
+        color: #111;
+        line-height: 1;
+        margin-top: 10px;
+    }
+
+    .empty {
+        margin: 0 0 24px 0;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        border: 1px solid #e3e3e3;
+        color: #666;
+    }
+
+    .filters-wrap {
+        margin-bottom: 24px;
+    }
+
+    .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 180px;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        padding: 12px 14px;
+        font-size: 15px;
+        border: 1px solid #cfcfcf;
+        border-radius: 10px;
+        background: #fff;
+        outline: none;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        border-color: #1f6feb;
+        box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+    }
+
+    .filter-actions {
+        display: flex;
+        align-items: end;
+    }
+
+    .filter-actions button {
+        padding: 12px 18px;
+        border: none;
+        border-radius: 10px;
+        background: #1f6feb;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .filter-actions button:hover {
+        background: #1558c0;
+    }
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        min-width: 1220px;
+        border-collapse: collapse;
+        background: #fff;
+    }
+
+    th,
+    td {
+        border-bottom: 1px solid #ececec;
+        padding: 14px 14px;
+        text-align: left;
+        vertical-align: middle;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    th {
+        background: #343a40;
+        color: white;
+        font-weight: 700;
+    }
+
+    tr:hover td {
+        background: #fafcff;
+    }
+
+    td.name-col,
+    td.transaction-col,
+    td.specific-col,
+    td.department-col,
+    td.created-col {
+        white-space: normal;
+    }
+
+    .status-badge {
+        display: inline-block;
+        min-width: 96px;
+        text-align: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background: #eef2f7;
+        color: #334155;
+    }
+
+    .status-WAITING {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+    .status-CALLED {
+        background: #e0f2fe;
+        color: #075985;
+    }
+
+    .status-IN_SERVICE {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-DONE {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .view-link {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: #1f6feb;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .view-link:hover {
+        background: #1558c0;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 16px;
+        }
+
+        .container {
+            padding: 18px;
+        }
+
+        h1 {
+            font-size: 32px;
+        }
+
+        h2 {
+            font-size: 24px;
+        }
+
+        .summary-card .value,
+        .department-card .dept-count {
+            font-size: 32px;
+        }
+
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group,
+        .filter-actions {
+            width: 100%;
+        }
+
+        .filter-actions button {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+    <div class="container">
+
+        <div class="top-links">
+            <a class="back-link" th:href="@{/admin/config}">← Back to Admin Config</a>
+        </div>
+
+        <h1>Admin Ticket History</h1>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="label">Total</div>
+                <div class="value" th:text="${totalToday}">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">Done</div>
+                <div class="value" th:text="${doneToday}">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">Waiting</div>
+                <div class="value" th:text="${waitingToday}">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">In Service</div>
+                <div class="value" th:text="${inServiceToday}">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">Called</div>
+                <div class="value" th:text="${calledToday}">0</div>
+            </div>
+        </div>
+
+        <div class="department-summary">
+            <div class="section-title">Department Summary</div>
+
+            <div class="department-summary-grid"
+                 th:if="${departmentSummary != null and !#lists.isEmpty(departmentSummary)}">
+                <div class="department-card" th:each="d : ${departmentSummary}">
+                    <div class="dept-name" th:text="${d.department}">DEPARTMENT</div>
+                    <div class="dept-count" th:text="${d.count}">0</div>
+                </div>
+            </div>
+
+            <div class="empty" th:if="${departmentSummary == null or #lists.isEmpty(departmentSummary)}">
+                No department data found for the selected date.
+            </div>
+        </div>
+
+        <div class="filters-wrap">
+            <form method="get" th:action="@{/admin/tickets/history}" class="filters">
+                <div class="filter-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" th:value="${selectedDate}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="" th:selected="${selectedStatus == ''}">All</option>
+                        <option value="WAITING" th:selected="${selectedStatus == 'WAITING'}">WAITING</option>
+                        <option value="CALLED" th:selected="${selectedStatus == 'CALLED'}">CALLED</option>
+                        <option value="IN_SERVICE" th:selected="${selectedStatus == 'IN_SERVICE'}">IN SERVICE</option>
+                        <option value="DONE" th:selected="${selectedStatus == 'DONE'}">DONE</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(tickets)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 110px;">Queue No</th>
+                        <th style="width: 180px;">Name</th>
+                        <th style="width: 160px;">Transaction</th>
+                        <th style="width: 210px;">Specific Transaction</th>
+                        <th style="width: 170px;">Department</th>
+                        <th style="width: 130px;">Status</th>
+                        <th style="width: 250px;">Created At</th>
+                        <th style="width: 110px;">History</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${tickets}">
+                        <td th:text="${t.queueNo}">A001</td>
+                        <td class="name-col" th:text="${t.firstName + ' ' + t.lastName}">Name</td>
+
+                        <td class="transaction-col"
+                            th:text="${txNameMap[t.transactionType != null ? #strings.toUpperCase(t.transactionType) : ''] != null
+                                ? txNameMap[#strings.toUpperCase(t.transactionType)]
+                                : t.transactionType}">
+                            TX
+                        </td>
+
+                        <td class="specific-col"
+                            th:text="${t.specificTransaction != null and !#strings.isEmpty(t.specificTransaction)
+                                ? (specTxNameMap[#strings.toUpperCase(t.specificTransaction)] != null
+                                    ? specTxNameMap[#strings.toUpperCase(t.specificTransaction)]
+                                    : t.specificTransaction)
+                                : '-'}">
+                            -
+                        </td>
+
+                        <td class="department-col" th:text="${t.department}">DEPT</td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="' status-' + ${t.status}"
+                                  th:text="${t.status}">
+                                DONE
+                            </span>
+                        </td>
+                        <td class="created-col" th:text="${t.createdAt}">2026-03-31T10:00</td>
+                        <td>
+                            <a class="view-link"
+                               th:href="@{'/dept/' + ${t.department} + '/history/' + ${t.id} + '?source=admin'}">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty" th:if="${#lists.isEmpty(tickets)}">
+            No tickets found for the selected filter.
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

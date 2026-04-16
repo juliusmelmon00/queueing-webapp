@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Staff Login</title>
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 40px;
+        background: #f7f7f7;
+    }
+
+    .box {
+        max-width: 650px;   /* 🔥 reduced from 980px */
+        margin: 0 auto;     /* center */
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 14px;
+        padding: 30px;
+    }
+
+    h2 {
+        margin-bottom: 25px;
+        font-size: 32px;   /* smaller */
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        outline: none;
+    }
+
+    input:focus {
+        border: 2px solid #333;
+    }
+
+    .password-field {
+        position: relative;
+        margin-bottom: 15px;
+    }
+
+    .password-field input {
+        padding-right: 45px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        background: #2563eb;   /* 🔥 BLUE */
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #1d4ed8;   /* darker blue */
+    }
+
+    .msg {
+        margin-top: 12px;
+        color: #c62828;
+    }
+
+    .ok {
+        margin-top: 12px;
+        color: #2e7d32;
+    }
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Staff Login</h2>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <input type="text" name="username" placeholder="Username" autofocus required />
+        </div>
+
+        <div class="password-field">
+            <input type="password" id="password" name="password" placeholder="Password" required />
+            <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
+        </div>
+
+        <button type="submit">Sign in</button>
+    </form>
+
+    <div class="msg" th:if="${param.error}">Invalid username or password.</div>
+    <div class="ok" th:if="${param.logout}">Logged out successfully.</div>
+</div>
+
+<script>
+    function togglePassword(fieldId, icon) {
+        const input = document.getElementById(fieldId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "🙈";
+        } else {
+            input.type = "password";
+            icon.textContent = "👁";
+        }
+    }
+</script>
+
+</body>
+</html>

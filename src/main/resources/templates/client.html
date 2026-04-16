@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Ticket Form</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: #f8f9fa;
+}
+
+.container {
+    max-width: 520px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 24px;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+label {
+    display: block;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+input:focus, select:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.error-box {
+    color: #b00020;
+    background: #fdecea;
+    border: 1px solid #f5c2c7;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.help-text {
+    font-size: 13px;
+    color: #555;
+    margin-top: 8px;
+}
+
+.dynamic-field-group {
+    margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 16px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Get Queue Number</h2>
+
+    <div th:if="${error}" class="error-box">
+        <span th:text="${error}"></span>
+    </div>
+
+    <form method="post" th:action="@{/client/submit}">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required>
+
+        <div th:each="f : ${clientFields}" class="dynamic-field-group">
+            <label th:for="${'extra_' + f.fieldCode}" th:text="${f.label + ':'}">Dynamic Field:</label>
+
+            <input th:if="${f.fieldType == 'TEXT'}"
+                   type="text"
+                   th:id="${'extra_' + f.fieldCode}"
+                   th:name="${'extra_' + f.fieldCode}"
+                   th:placeholder="${f.placeholder}"
+                   th:required="${f.isRequired}">
+
+            <input th:if="${f.fieldType == 'NUMBER'}"
+                   type="number"
+                   th:id="${'extra_' + f.fieldCode}"
+                   th:name="${'extra_' + f.fieldCode}"
+                   th:placeholder="${f.placeholder}"
+                   th:required="${f.isRequired}">
+
+            <input th:if="${f.fieldType == 'DATE'}"
+                   type="date"
+                   th:id="${'extra_' + f.fieldCode}"
+                   th:name="${'extra_' + f.fieldCode}"
+                   th:required="${f.isRequired}">
+        </div>
+
+        <label for="transactionType">Transaction Type:</label>
+        <select name="transactionType" id="transactionType" required>
+            <option value="">-- Select Transaction --</option>
+            <option th:each="tx : ${transactionTypes}"
+                    th:value="${tx.code}"
+                    th:text="${tx.name}">
+            </option>
+        </select>
+
+        <div id="specificTransactionSection" style="display:none;">
+            <label for="specificTransaction">Specific Transaction:</label>
+            <select id="specificTransaction" name="specificTransaction">
+                <option value="">-- Select Specific Transaction --</option>
+            </select>
+
+            <div class="help-text">
+                The system will automatically route your ticket to the correct department.
+            </div>
+        </div>
+
+        <button type="submit">Get Queue Number</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const transactionTypeDropdown = document.getElementById("transactionType");
+    const specificTransactionSection = document.getElementById("specificTransactionSection");
+    const specificTransactionDropdown = document.getElementById("specificTransaction");
+
+    function resetSpecificTransactions() {
+        specificTransactionDropdown.innerHTML =
+            '<option value="">-- Select Specific Transaction --</option>';
+        specificTransactionDropdown.value = "";
+    }
+
+    function hideSpecificTransactionSection() {
+        specificTransactionSection.style.display = "none";
+        resetSpecificTransactions();
+    }
+
+    function showSpecificTransactionSection() {
+        specificTransactionSection.style.display = "block";
+    }
+
+    transactionTypeDropdown.addEventListener("change", function() {
+        const tx = this.value;
+
+        resetSpecificTransactions();
+
+        if (!tx) {
+            hideSpecificTransactionSection();
+            return;
+        }
+
+        fetch('/api/specific-transactions?tx=' + encodeURIComponent(tx))
+            .then(response => response.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    hideSpecificTransactionSection();
+                    return;
+                }
+
+                data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.code;
+                    option.textContent = item.name;
+                    specificTransactionDropdown.appendChild(option);
+                });
+
+                showSpecificTransactionSection();
+            })
+            .catch(error => {
+                console.error("Failed to load specific transactions:", error);
+                hideSpecificTransactionSection();
+            });
+    });
+
+    hideSpecificTransactionSection();
+});
+</script>
+
+</body>
+</html>

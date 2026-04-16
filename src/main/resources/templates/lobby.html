@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${companyName != null and !#strings.isEmpty(companyName) ? companyName + ' Lobby Monitor' : 'Lobby Monitor'}">Lobby Monitor</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 10px;
+      color: #222;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #enableSoundBtn {
+      border: none;
+      background: #222;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    #enableSoundBtn:hover {
+      background: #000;
+    }
+
+    #soundStatus {
+      font-size: 14px;
+      color: #444;
+      font-weight: 600;
+    }
+
+    .branding {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: white;
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 14px;
+    }
+
+    .brand-logo-wrap {
+      width: 72px;
+      height: 72px;
+      flex: 0 0 72px;
+      border-radius: 14px;
+      background: #f3f3f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #e3e3e3;
+    }
+
+    .brand-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: white;
+    }
+
+    .brand-logo-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #777;
+  text-align: center;
+  padding: 6px;
+  line-height: 1.3;
+}
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-company {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .brand-subtitle {
+      font-size: 15px;
+      color: #666;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      padding-bottom: 10px;
+      align-items: start;
+    }
+
+    .column {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .col-title {
+      text-align: center;
+      background: #222;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .now-serving {
+      margin: 10px 0 12px 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #111;
+      background: #f7f7f7;
+      text-align: center;
+    }
+
+    .now-label {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: #222;
+    }
+
+    .now-qno {
+      font-size: 34px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
+    .now-st {
+      font-size: 14px;
+      margin-top: 4px;
+      color: #555;
+    }
+
+    .waiting-box {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .ticket {
+      margin: 8px 0;
+      font-weight: bold;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+      text-align: center;
+    }
+
+    .qno {
+      font-size: 26px;
+    }
+
+    .st {
+      font-size: 13px;
+      margin-top: 4px;
+      color: #555;
+    }
+
+    .empty-waiting {
+      text-align: center;
+      color: #888;
+      padding: 18px 10px;
+      font-size: 14px;
+      border: 1px dashed #d6d6d6;
+      border-radius: 8px;
+      background: #fcfcfc;
+    }
+
+    .empty-board {
+      grid-column: 1 / -1;
+      background: white;
+      border-radius: 14px;
+      padding: 30px 20px;
+      text-align: center;
+      color: #666;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .CALLED { border-color: #007bff; }
+    .IN_SERVICE { border-color: #28a745; }
+    .WAITING { border-color: #999; }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 8px;
+      }
+
+      .branding {
+        align-items: flex-start;
+      }
+
+      .brand-company {
+        font-size: 24px;
+      }
+
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      .now-qno {
+        font-size: 30px;
+      }
+
+      .qno {
+        font-size: 24px;
+      }
+    }
+
+    @media (min-width: 1600px) {
+      .brand-company {
+        font-size: 36px;
+      }
+
+      .now-qno {
+        font-size: 42px;
+      }
+
+      .qno {
+        font-size: 32px;
+      }
+
+      .col-title {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="top-left">
+      <button id="enableSoundBtn">🔊 Enable Sound</button>
+      <span id="soundStatus">Sound locked</span>
+    </div>
+  </div>
+
+  <div class="branding">
+    <div class="brand-logo-wrap">
+  <img
+    th:if="${companyLogoUrl != null and !#strings.isEmpty(#strings.trim(companyLogoUrl))}"
+    th:src="${#strings.trim(companyLogoUrl)}"
+    alt="Company Logo"
+    class="brand-logo"
+    onerror="this.style.display='none'; this.parentElement.querySelector('.brand-logo-fallback').style.display='flex';"
+  />
+  <div
+    class="brand-logo-fallback"
+    th:style="${companyLogoUrl != null and !#strings.isEmpty(#strings.trim(companyLogoUrl))} ? 'display:none;' : 'display:flex;'">
+    No Logo
+  </div>
+</div>
+
+
+
+    <div class="brand-text">
+      <div class="brand-company"
+           th:text="${companyName != null and !#strings.isEmpty(companyName) ? companyName : 'Lobby Monitor'}">
+        Lobby Monitor
+      </div>
+      <div class="brand-subtitle">Queue Monitoring Display</div>
+    </div>
+  </div>
+
+  <div class="container" id="lobbyContainer">
+    <div th:if="${#lists.isEmpty(departments)}" class="empty-board">
+      No departments available for lobby display.
+    </div>
+
+    <div class="column" th:each="d : ${departments}" th:attr="data-dept=${d.code}">
+      <div class="col-title" th:text="${d.name}">Department</div>
+
+      <div class="now-serving">
+        <div class="now-label"><b>NOW SERVING</b></div>
+        <div class="now-qno" th:text="${d.nowServing != null ? d.nowServing.queueNo : '—'}">—</div>
+        <div class="now-st" th:text="${d.nowServing != null ? d.nowServing.status : ''}"></div>
+      </div>
+
+      <div class="waiting-box">
+        <div th:if="${#lists.isEmpty(d.waiting)}" class="empty-waiting">No waiting tickets</div>
+
+        <div th:each="t : ${d.waiting}" class="ticket" th:classappend="${t.status}">
+          <div class="qno" th:text="${t.queueNo}">A001</div>
+          <div class="st" th:text="${t.status}">WAITING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+  <script>
+    let soundEnabled = false;
+
+    document.getElementById("enableSoundBtn").addEventListener("click", () => {
+      soundEnabled = true;
+      document.getElementById("soundStatus").textContent = "Sound enabled";
+      beep();
+    });
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.frequency.value = 880;
+        osc.type = "sine";
+
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+      } catch (e) {
+        console.error("Beep error:", e);
+      }
+    }
+
+    function speak(queueNo, department) {
+      try {
+        const msg = new SpeechSynthesisUtterance(
+          `${queueNo}, please proceed to ${department.replaceAll("_", " ")}`
+        );
+        speechSynthesis.speak(msg);
+      } catch (e) {
+        console.error("Speech error:", e);
+      }
+    }
+
+    function esc(s) {
+      return (s ?? "").toString()
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderLobby(departments) {
+      const container = document.getElementById("lobbyContainer");
+      if (!container) return;
+
+      const list = departments || [];
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="empty-board">
+            No departments available for lobby display.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+
+      list.forEach(d => {
+        const waitingList = d.waiting || [];
+
+        const waitingHtml = waitingList.length > 0
+          ? waitingList.map(t => `
+              <div class="ticket ${esc(t.status)}">
+                <div class="qno">${esc(t.queueNo)}</div>
+                <div class="st">${esc(t.status)}</div>
+              </div>
+            `).join("")
+          : `<div class="empty-waiting">No waiting tickets</div>`;
+
+        container.innerHTML += `
+          <div class="column" data-dept="${esc(d.code)}">
+            <div class="col-title">${esc(d.name)}</div>
+
+            <div class="now-serving">
+              <div class="now-label"><b>NOW SERVING</b></div>
+              <div class="now-qno">${d.nowServing ? esc(d.nowServing.queueNo) : "—"}</div>
+              <div class="now-st">${d.nowServing ? esc(d.nowServing.status) : ""}</div>
+            </div>
+
+            <div class="waiting-box">
+              ${waitingHtml}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function connectWs() {
+      const sock = new SockJS("/ws");
+      const stomp = Stomp.over(sock);
+      stomp.debug = null;
+
+      stomp.connect({}, () => {
+        stomp.subscribe("/topic/lobby", (msg) => {
+          const data = JSON.parse(msg.body);
+          renderLobby(data.departments || []);
+        });
+
+        stomp.subscribe("/topic/announcements", (msg) => {
+          const a = JSON.parse(msg.body);
+          if (!a || !a.queueNo || !a.department) return;
+
+          if (soundEnabled) {
+            beep();
+            speak(a.queueNo, a.department);
+          }
+        });
+      }, () => {
+        setTimeout(connectWs, 2000);
+      });
+    }
+
+    connectWs();
+  </script>
+</body>
+</html>

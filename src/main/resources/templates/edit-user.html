@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 36px;
+        }
+
+        label {
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #e3e3e3;
+            border-radius: 18px;
+            padding: 24px;
+            max-width: 1100px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-row > div {
+            min-width: 180px;
+        }
+
+        .form-row input,
+        .form-row select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            outline: none;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .actions button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #1f6feb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .actions button:hover {
+            background: #1558c0;
+        }
+
+        .actions a {
+            margin-left: 12px;
+            text-decoration: none;
+            color: #1f6feb;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .section {
+                padding: 18px;
+            }
+
+            .form-row > div {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Edit User</h1>
+
+<div class="section">
+    <form th:action="@{|/admin/config/users/${appUser.id}/edit|}" method="post">
+        <div class="form-row">
+
+            <div>
+                <label>Username</label><br>
+                <input type="text" name="username" th:value="${appUser.username}" required>
+            </div>
+
+            <div>
+                <label>Role</label><br>
+                <select name="role" id="editUserRole" required>
+                    <option value="ADMIN" th:selected="${appUser.role == 'ADMIN'}">ADMIN</option>
+                    <option value="STAFF" th:selected="${appUser.role == 'STAFF'}">STAFF</option>
+                </select>
+            </div>
+
+            <div id="editUserDepartmentGroup">
+                <label>Department</label><br>
+                <select name="departmentId" id="editUserDepartmentId">
+                    <option value="">-- Select Department --</option>
+                    <option th:each="d : ${departments}"
+                            th:value="${d.id}"
+                            th:selected="${appUser.department != null and appUser.department.id == d.id}"
+                            th:text="${d.code + ' - ' + d.name}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label>Active</label><br>
+                <select name="isActive">
+                    <option value="true" th:selected="${appUser.isActive}">YES</option>
+                    <option value="false" th:selected="${!appUser.isActive}">NO</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="actions">
+            <button type="submit">Save Changes</button>
+            <a th:href="@{/admin/config}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const editUserRole = document.getElementById("editUserRole");
+    const editUserDepartmentGroup = document.getElementById("editUserDepartmentGroup");
+    const editUserDepartmentId = document.getElementById("editUserDepartmentId");
+
+    function toggleEditUserDepartment() {
+        if (!editUserRole || !editUserDepartmentGroup || !editUserDepartmentId) {
+            return;
+        }
+
+        const needsDepartment = editUserRole.value === "STAFF";
+
+        editUserDepartmentGroup.style.display = needsDepartment ? "block" : "none";
+        editUserDepartmentId.disabled = !needsDepartment;
+
+        if (!needsDepartment) {
+            editUserDepartmentId.value = "";
+        }
+    }
+
+    if (editUserRole) {
+        editUserRole.addEventListener("change", toggleEditUserDepartment);
+        toggleEditUserDepartment();
+    }
+});
+</script>
+
+</body>
+</html>

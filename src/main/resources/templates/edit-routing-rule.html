@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Routing Rule</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 36px;
+        }
+
+        label {
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #e3e3e3;
+            border-radius: 18px;
+            padding: 24px;
+            max-width: 1200px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-row > div {
+            min-width: 200px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .actions button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #1f6feb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .actions button:hover {
+            background: #1558c0;
+        }
+
+        .actions a {
+            margin-left: 12px;
+            text-decoration: none;
+            color: #1f6feb;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .section {
+                padding: 18px;
+            }
+
+            .form-row > div {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Edit Routing Rule</h1>
+
+<div class="section">
+    <form th:action="@{|/admin/config/routing-rules/${rule.id}/edit|}" method="post">
+
+        <div class="form-row">
+
+            <div>
+                <label>Transaction Type</label><br>
+                <select name="transactionTypeCode" id="editRoutingTransactionTypeCode" required>
+                    <option value="">-- Select --</option>
+                    <option th:each="tx : ${transactionTypes}"
+                            th:value="${tx.code}"
+                            th:attr="data-id=${tx.id}"
+                            th:text="${tx.name}"
+                            th:selected="${tx.code == rule.transactionTypeCode}">
+                    </option>
+                </select>
+            </div>
+
+            <div id="editSpecificTransactionGroup" style="display:none;">
+                <label>Specific Transaction</label><br>
+                <select name="specificTransactionCode" id="editRoutingSpecificTransactionCode"
+                        th:attr="data-current-value=${rule.specificTransactionCode}">
+                    <option value="">-- Optional (Fallback) --</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Target Department</label><br>
+                <select name="targetDepartmentCode" required>
+                    <option th:each="d : ${departments}"
+                            th:value="${d.code}"
+                            th:text="${d.name}"
+                            th:selected="${d.code == rule.targetDepartmentCode}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label>Priority</label><br>
+                <input type="number"
+                       name="priority"
+                       th:value="${rule.priority}"
+                       min="1"
+                       required>
+            </div>
+
+            <div>
+                <label>Active</label><br>
+                <select name="isActive">
+                    <option value="true" th:selected="${rule.isActive}">YES</option>
+                    <option value="false" th:selected="${!rule.isActive}">NO</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="actions">
+            <button type="submit">Save Changes</button>
+            <a th:href="@{/admin/config}">Cancel</a>
+        </div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const transactionTypeSelect = document.getElementById("editRoutingTransactionTypeCode");
+    const specificTransactionGroup = document.getElementById("editSpecificTransactionGroup");
+    const specificTransactionSelect = document.getElementById("editRoutingSpecificTransactionCode");
+
+    function resetSpecificTransactionDropdown() {
+        if (!specificTransactionSelect || !specificTransactionGroup) {
+            return;
+        }
+
+        specificTransactionSelect.innerHTML = '<option value="">-- Optional (Fallback) --</option>';
+        specificTransactionSelect.value = "";
+        specificTransactionGroup.style.display = "none";
+    }
+
+    async function loadSpecificTransactions(keepCurrentSelection) {
+        const selectedOption = transactionTypeSelect.options[transactionTypeSelect.selectedIndex];
+        const transactionTypeId = selectedOption ? selectedOption.getAttribute("data-id") : null;
+        const currentValue = specificTransactionSelect.getAttribute("data-current-value");
+
+        resetSpecificTransactionDropdown();
+
+        if (!transactionTypeId) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/admin/config/specific-transactions/by-transaction-type/' + transactionTypeId);
+
+            if (!response.ok) {
+                console.error("Failed to load specific transactions");
+                return;
+            }
+
+            const items = await response.json();
+
+            if (!items || items.length === 0) {
+                return;
+            }
+
+            items.forEach(function (item) {
+                const option = document.createElement("option");
+                option.value = item.code;
+                option.textContent = item.name;
+
+                if (keepCurrentSelection && currentValue && currentValue === item.code) {
+                    option.selected = true;
+                }
+
+                specificTransactionSelect.appendChild(option);
+            });
+
+            specificTransactionGroup.style.display = "block";
+        } catch (error) {
+            console.error("Error loading specific transactions:", error);
+            resetSpecificTransactionDropdown();
+        }
+    }
+
+    if (transactionTypeSelect) {
+        transactionTypeSelect.addEventListener("change", function () {
+            specificTransactionSelect.setAttribute("data-current-value", "");
+            loadSpecificTransactions(false);
+        });
+
+        loadSpecificTransactions(true);
+    }
+});
+</script>
+
+</body>
+</html>

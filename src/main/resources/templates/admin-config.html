@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Config Panel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        h1 {
+            margin: 0 0 18px 0;
+            font-size: 40px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        label {
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .page-wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: #fff;
+            border: 1px solid #e3e3e3;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .section-toggle-btn {
+            border: none;
+            background: #1f6feb;
+            color: #fff;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 44px;
+            line-height: 1;
+        }
+
+        .section-toggle-btn:hover {
+            background: #1558c0;
+        }
+
+        .section-body.collapsed {
+            display: none;
+        }
+
+        .topnav {
+            margin-bottom: 22px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .topnav a,
+        .topnav form button {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            border: none;
+            background: #1f6feb;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .topnav a:hover,
+        .topnav form button:hover {
+            background: #1558c0;
+        }
+
+        .topnav form {
+            display: inline-block;
+            margin: 0;
+        }
+
+        .message-success,
+        .message-error,
+        .message-warning {
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .message-success {
+            border: 1px solid #b7e4c7;
+            background: #eafaf1;
+            color: #1b5e20;
+        }
+
+        .message-error {
+            border: 1px solid #f5c2c7;
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .message-warning {
+            border: 1px solid #ffe69c;
+            background: #fff8e1;
+            color: #8a6d3b;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-row > div {
+            min-width: 180px;
+        }
+
+        .form-row input,
+        .form-row select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            outline: none;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .form-row button,
+        .btn-activate,
+        .btn-deactivate,
+        .btn-linkish {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #1f6feb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .form-row button:hover,
+        .btn-activate:hover,
+        .btn-deactivate:hover,
+        .btn-linkish:hover {
+            background: #1558c0;
+        }
+
+        .inline-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .action-links a,
+        .action-links form {
+            display: inline-block;
+            margin-right: 8px;
+            margin-top: 6px;
+        }
+
+        .action-links a {
+            color: #1f6feb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #ececec;
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f4f8ff;
+            color: #1f3b64;
+            font-weight: 700;
+        }
+
+        tr:hover td {
+            background: #fafcff;
+        }
+
+        .tag-true {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .tag-false {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .password-toggle-wrap {
+            position: relative;
+        }
+
+        .password-toggle-wrap input {
+            padding-right: 42px;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            right: 14px;
+            top: 41px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            font-size: 16px;
+        }
+
+        .section form[style] {
+            margin-bottom: 16px !important;
+        }
+
+        .form-row.form-row-uniform {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(180px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-col-span-2 {
+            grid-column: span 2;
+        }
+
+        .multi-select-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .multi-select-box {
+            width: 100%;
+            min-height: 180px;
+            padding: 10px 12px;
+            font-size: 15px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            outline: none;
+        }
+
+        .multi-select-box:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .multi-select-help {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .action-col {
+            display: flex;
+            align-items: end;
+            height: 100%;
+        }
+
+        .action-col button {
+            width: 100%;
+        }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-selected {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cfcfcf;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .dropdown-options {
+            display: none;
+            position: absolute;
+            width: 100%;
+            max-height: 280px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #fff;
+            z-index: 999;
+            margin-top: 4px;
+            padding: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .dropdown-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-actions button {
+            flex: 1;
+            padding: 6px;
+            font-size: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .dropdown-actions button:hover {
+            background: #1558c0;
+        }
+
+        .dropdown-search-wrap {
+            margin-bottom: 8px;
+        }
+
+        .dropdown-search-input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #d5d5d5;
+            border-radius: 8px;
+            outline: none;
+            background: #fff;
+        }
+
+        .dropdown-search-input:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        .dropdown-options label {
+            display: block;
+            padding: 6px;
+            cursor: pointer;
+            font-weight: normal;
+            margin-bottom: 0;
+            border-radius: 8px;
+        }
+
+        .dropdown-options label:hover {
+            background: #f0f4ff;
+        }
+
+        .dropdown-options input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .group-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .group-card {
+            border: 1px solid #dbe6f5;
+            border-radius: 16px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+            background: #f7fbff;
+            cursor: pointer;
+        }
+
+        .group-header:hover {
+            background: #eef5ff;
+        }
+
+        .group-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .group-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #163a63;
+        }
+
+        .group-subtitle {
+            font-size: 14px;
+            color: #5b6b7f;
+        }
+
+        .group-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eaf2ff;
+            color: #1f3b64;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .group-toggle {
+            border: none;
+            background: #1f6feb;
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 110px;
+        }
+
+        .group-toggle:hover {
+            background: #1558c0;
+        }
+
+        .group-body {
+            display: none;
+            padding: 0 0 6px 0;
+        }
+
+        .group-body.expanded {
+            display: block;
+        }
+
+        .group-search-wrap {
+            padding: 14px 16px 0 16px;
+        }
+
+        .group-search-input {
+            width: 100%;
+            max-width: 380px;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1px solid #d5d5d5;
+            border-radius: 10px;
+            outline: none;
+            background: #fff;
+        }
+
+        .group-search-input:focus {
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+        }
+
+        @media (max-width: 1200px) {
+            .form-row.form-row-uniform {
+                grid-template-columns: repeat(2, minmax(180px, 1fr));
+            }
+
+            .form-col-span-2 {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .section {
+                padding: 18px;
+            }
+
+            .form-row > div {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .topnav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .topnav a,
+            .topnav form,
+            .topnav form button {
+                width: 100%;
+            }
+
+            .form-row.form-row-uniform {
+                grid-template-columns: 1fr;
+            }
+
+            .form-col-span-2 {
+                grid-column: span 1;
+            }
+
+            .multi-select-box {
+                min-height: 140px;
+            }
+
+            .group-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .group-stats {
+                justify-content: flex-start;
+            }
+
+            .group-toggle {
+                width: 100%;
+            }
+
+            .group-search-input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+
+    <h1>Admin Config Panel</h1>
+
+    <div class="topnav">
+        <a th:href="@{/lobby}" target="_blank">🖥 Lobby Monitor</a>
+        <a th:href="@{/account/password}">🔐 Change Password</a>
+        <a th:href="@{/admin/tickets/history}">📊 Ticket History</a>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">🚪 Logout</button>
+        </form>
+    </div>
+
+    <!--------------------- COMPANY BRANDING ------------------------>
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('brandingBody', 'brandingBtn')">
+            <h2>Company Branding</h2>
+            <button type="button" class="section-toggle-btn" id="brandingBtn">−</button>
+        </div>
+
+        <div class="section-body" id="brandingBody">
+            <div th:if="${param.brandingSaved != null}" class="message-success">
+                Company branding saved successfully.
+            </div>
+
+            <div th:if="${param.brandingInvalid != null}" class="message-error">
+                Company name is required.
+            </div>
+
+            <form th:action="@{/admin/config/branding}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Company Name</label><br>
+                        <input type="text" name="companyName" th:value="${companyName}" required placeholder="Example: Manning Company">
+                    </div>
+
+                    <div>
+                        <label>Company Logo URL</label><br>
+                        <input type="text" name="companyLogoUrl" th:value="${companyLogoUrl}" placeholder="Example: /images/company-logo.png">
+                    </div>
+
+                    <div>
+                        <button type="submit">Save Branding</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--------------------- DEPARTMENTS ------------------------>
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('departmentsBody', 'departmentsBtn')">
+            <h2>Departments</h2>
+            <button type="button" class="section-toggle-btn" id="departmentsBtn">−</button>
+        </div>
+
+        <div class="section-body" id="departmentsBody">
+            <div th:if="${param.deptSaved != null}" class="message-success">
+                Department saved successfully.
+            </div>
+
+            <div th:if="${param.deptExists != null}" class="message-error">
+                Department code already exists. Record was not saved.
+            </div>
+
+            <div th:if="${param.deptActivated != null}" class="message-success">
+                Department activated successfully.
+            </div>
+
+            <div th:if="${param.deptDeactivated != null}" class="message-warning">
+                Department deactivated successfully.
+            </div>
+
+            <div th:if="${param.deptInvalid != null}" class="message-error">
+                Invalid department input. Code and name are required, and display order must be 1 or higher.
+            </div>
+
+            <div th:if="${param.deptInvalidCode != null}" class="message-error">
+                Department code must not contain spaces.
+            </div>
+
+            <div th:if="${param.deptInUse != null}" class="message-warning">
+                Cannot deactivate. This department is used in routing rules.
+            </div>
+
+            <form th:action="@{/admin/config/departments}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Code</label><br>
+                        <input type="text" name="code" required placeholder="Example: CASHIER">
+                    </div>
+
+                    <div>
+                        <label>Name</label><br>
+                        <input type="text" name="name" required placeholder="Example: Cashier">
+                    </div>
+
+                    <div>
+                        <label>Display Order</label><br>
+                        <input type="number" name="displayOrder" value="1" min="1" required>
+                    </div>
+
+                    <div>
+                        <label>Active</label><br>
+                        <select name="isActive">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Allow Routing</label><br>
+                        <select name="allowRouting">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>One Active Ticket Only</label><br>
+                        <select name="oneActiveTicketOnly">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit">Add Department</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Display Order</th>
+                        <th>Active</th>
+                        <th>Allow Routing</th>
+                        <th>One Active Ticket Only</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${departments}">
+                        <td th:text="${d.id}">1</td>
+                        <td th:text="${d.code}">RECRUITMENT</td>
+                        <td th:text="${d.name}">Recruitment</td>
+                        <td th:text="${d.displayOrder}">1</td>
+                        <td th:classappend="${d.isActive} ? 'tag-true' : 'tag-false'"
+                            th:text="${d.isActive} ? 'YES' : 'NO'">YES</td>
+                        <td th:classappend="${d.allowRouting} ? 'tag-true' : 'tag-false'"
+                            th:text="${d.allowRouting} ? 'YES' : 'NO'">YES</td>
+                        <td th:classappend="${d.oneActiveTicketOnly} ? 'tag-true' : 'tag-false'"
+                            th:text="${d.oneActiveTicketOnly} ? 'YES' : 'NO'">YES</td>
+                        <td class="action-links">
+                            <a th:href="@{|/admin/config/departments/${d.id}/edit|}">Edit</a>
+
+                            <form th:if="${d.isActive}"
+                                  th:action="@{|/admin/config/departments/${d.id}/deactivate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit"
+                                        class="btn-deactivate"
+                                        onclick="return confirm('Are you sure you want to deactivate this department? This may affect routing.')">
+                                    Deactivate
+                                </button>
+                            </form>
+
+                            <form th:if="${!d.isActive}"
+                                  th:action="@{|/admin/config/departments/${d.id}/activate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit" class="btn-activate">Activate</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------- TRANSACTION TYPES ------------------------>
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('transactionTypesBody', 'transactionTypesBtn')">
+            <h2>Transaction Types</h2>
+            <button type="button" class="section-toggle-btn" id="transactionTypesBtn">−</button>
+        </div>
+
+        <div class="section-body" id="transactionTypesBody">
+            <div th:if="${param.txSaved != null}" class="message-success">
+                Transaction type saved successfully.
+            </div>
+
+            <div th:if="${param.txExists != null}" class="message-error">
+                Transaction type code already exists. Record was not saved.
+            </div>
+
+            <div th:if="${param.txActivated != null}" class="message-success">
+                Transaction type activated successfully.
+            </div>
+
+            <div th:if="${param.txDeactivated != null}" class="message-warning">
+                Transaction type deactivated successfully.
+            </div>
+
+            <div th:if="${param.txInvalid != null}" class="message-error">
+                Invalid transaction type input. Code and name are required, and display order must be 1 or higher.
+            </div>
+
+            <div th:if="${param.txInvalidCode != null}" class="message-error">
+                Transaction type code must not contain spaces.
+            </div>
+
+            <div th:if="${param.txInUse != null}" class="message-warning">
+                Cannot deactivate. This transaction type is used in routing rules.
+            </div>
+
+            <form th:action="@{/admin/config/transaction-types}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Code</label><br>
+                        <input type="text" name="code" required placeholder="Example: RENEWAL">
+                    </div>
+
+                    <div>
+                        <label>Name</label><br>
+                        <input type="text" name="name" required placeholder="Example: Renewal">
+                    </div>
+
+                    <div>
+                        <label>Description</label><br>
+                        <input type="text" name="description" placeholder="Optional description">
+                    </div>
+
+                    <div>
+                        <label>Display Order</label><br>
+                        <input type="number" name="displayOrder" value="1" min="1" required>
+                    </div>
+
+                    <div>
+                        <label>Active</label><br>
+                        <select name="isActive">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit">Add Transaction Type</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Display Order</th>
+                        <th>Active</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tx : ${transactionTypes}">
+                        <td th:text="${tx.id}">1</td>
+                        <td th:text="${tx.code}">INTERVIEW</td>
+                        <td th:text="${tx.name}">For interview</td>
+                        <td th:text="${tx.description}">Description</td>
+                        <td th:text="${tx.displayOrder}">1</td>
+                        <td th:classappend="${tx.isActive} ? 'tag-true' : 'tag-false'"
+                            th:text="${tx.isActive} ? 'YES' : 'NO'">YES</td>
+                        <td class="action-links">
+                            <a th:href="@{|/admin/config/transaction-types/${tx.id}/edit|}">Edit</a>
+
+                            <form th:if="${tx.isActive}"
+                                  th:action="@{|/admin/config/transaction-types/${tx.id}/deactivate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit"
+                                        class="btn-deactivate"
+                                        onclick="return confirm('Are you sure you want to deactivate this transaction type? This may affect routing.')">
+                                    Deactivate
+                                </button>
+                            </form>
+
+                            <form th:if="${!tx.isActive}"
+                                  th:action="@{|/admin/config/transaction-types/${tx.id}/activate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit" class="btn-activate">Activate</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------- SPECIFIC TRANSACTIONS ------------------------>
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('specificTransactionsBody', 'specificTransactionsBtn')">
+            <h2>Specific Transactions</h2>
+            <button type="button" class="section-toggle-btn" id="specificTransactionsBtn">−</button>
+        </div>
+
+        <div class="section-body" id="specificTransactionsBody">
+            <div th:if="${param.stImportSuccess != null}" class="message-success">
+                Import completed.
+                <br>
+                ✔ Success: <span th:text="${param.ok}"></span>
+                <br>
+                ⚠ Duplicates skipped: <span th:text="${param.dup}"></span>
+                <br>
+                ❌ Invalid rows: <span th:text="${param.bad}"></span>
+            </div>
+
+            <div th:if="${param.stImportError != null}" class="message-error">
+                Import failed. Please check your CSV format.
+            </div>
+
+            <div th:if="${param.stSaved != null}" class="message-success">
+                Specific transaction saved successfully.
+            </div>
+
+            <div th:if="${param.stActivated != null}" class="message-success">
+                Specific transaction activated successfully.
+            </div>
+
+            <div th:if="${param.stDeactivated != null}" class="message-warning">
+                Specific transaction deactivated successfully.
+            </div>
+
+            <div th:if="${param.stExists != null}" class="message-error">
+                Specific transaction code already exists. Record was not saved.
+            </div>
+
+            <div th:if="${param.stInvalid != null}" class="message-error">
+                Invalid specific transaction input.
+            </div>
+
+            <div th:if="${param.stInvalidCode != null}" class="message-error">
+                Specific transaction code must not contain spaces.
+            </div>
+
+            <div th:if="${param.stInUse != null}" class="message-warning">
+                Cannot deactivate. This specific transaction is used in routing rules.
+            </div>
+
+            <div class="form-row" style="margin-bottom: 16px;">
+                <div>
+                    <a th:href="@{/admin/config/specific-transactions/template}" class="btn-linkish">
+                        Download CSV Template
+                    </a>
+                </div>
+            </div>
+
+            <form th:action="@{/admin/config/specific-transactions/import}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  style="margin-bottom:16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Import CSV</label><br>
+                        <input type="file" name="file" accept=".csv" required>
+                    </div>
+
+                    <div>
+                        <button type="submit">Upload CSV</button>
+                    </div>
+                </div>
+            </form>
+
+            <form th:action="@{/admin/config/specific-transactions}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Code</label><br>
+                        <input type="text" name="code" required placeholder="Example: SUBMIT_NBI">
+                    </div>
+
+                    <div>
+                        <label>Name</label><br>
+                        <input type="text" name="name" required placeholder="Example: Submit NBI">
+                    </div>
+
+                    <div>
+                        <label>Transaction Type</label><br>
+                        <select name="transactionTypeCode" required>
+                            <option value="">-- Select --</option>
+                            <option th:each="tx : ${transactionTypes}"
+                                    th:value="${tx.code}"
+                                    th:text="${tx.name}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Display Order</label><br>
+                        <input type="number" name="displayOrder" value="1" min="1" required>
+                    </div>
+
+                    <div>
+                        <label>Active</label><br>
+                        <select name="isActive">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit">Add Specific Transaction</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="group-list">
+
+                <div th:if="${#lists.isEmpty(groupedSpecificTransactions)}" class="message-warning">
+                    No specific transactions found.
+                </div>
+
+                <div th:each="group, stat : ${groupedSpecificTransactions}" class="group-card">
+                    <div class="group-header"
+                         th:onclick="'toggleGroup(' + '\'' + 'stGroupBody' + ${stat.index} + '\'' + ',' + '\'' + 'stGroupBtn' + ${stat.index} + '\'' + ')'">
+
+                        <div class="group-left">
+                            <div class="group-title"
+                                 th:text="${group.transactionTypeName} + ' (' + ${group.transactionTypeCode} + ')'">
+                                Transaction Type
+                            </div>
+
+                            <div class="group-subtitle">
+                                Specific transactions grouped by transaction type
+                            </div>
+                        </div>
+
+                        <div class="group-stats">
+                            <span class="stat-badge"
+                                  th:text="'Total: ' + ${group.totalCount}">
+                                Total: 0
+                            </span>
+
+                            <span class="stat-badge"
+                                  th:text="'Active: ' + ${group.activeCount}">
+                                Active: 0
+                            </span>
+
+                            <button type="button"
+                                    class="group-toggle"
+                                    th:id="'stGroupBtn' + ${stat.index}">
+                                Expand
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="group-body"
+                         th:id="'stGroupBody' + ${stat.index}">
+
+                        <div class="group-search-wrap">
+                            <input type="text"
+                                   class="group-search-input"
+                                   placeholder="Search inside this transaction type..."
+                                   th:attr="oninput=|filterGroupedTable(this, 'stTableBody${stat.index}')|">
+                        </div>
+
+                        <div class="table-wrap" style="margin-top:0;">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Display Order</th>
+                                    <th>Active</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+
+                                <tbody th:id="'stTableBody' + ${stat.index}">
+                                <tr th:each="s : ${group.items}">
+                                    <td th:text="${s.id}">1</td>
+                                    <td th:text="${s.code}">SD1</td>
+                                    <td th:text="${s.name}">BBC ALBERTA</td>
+                                    <td th:text="${s.displayOrder}">1</td>
+                                    <td th:classappend="${s.isActive} ? 'tag-true' : 'tag-false'"
+                                        th:text="${s.isActive} ? 'YES' : 'NO'">YES</td>
+                                    <td class="action-links">
+                                        <a th:href="@{|/admin/config/specific-transactions/${s.id}/edit|}">Edit</a>
+
+                                        <form th:if="${s.isActive}"
+                                              th:action="@{|/admin/config/specific-transactions/${s.id}/deactivate|}"
+                                              method="post"
+                                              class="inline-form">
+                                            <button type="submit"
+                                                    class="btn-deactivate"
+                                                    onclick="return confirm('Are you sure you want to deactivate this specific transaction? This may affect routing.')">
+                                                Deactivate
+                                            </button>
+                                        </form>
+
+                                        <form th:if="${!s.isActive}"
+                                              th:action="@{|/admin/config/specific-transactions/${s.id}/activate|}"
+                                              method="post"
+                                              class="inline-form">
+                                            <button type="submit" class="btn-activate">Activate</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!--------------------- ROUTING RULES ------------------------>
+<div class="section">
+    <div class="section-header" onclick="toggleSection('routingRulesBody', 'routingRulesBtn')">
+        <h2>Routing Rules</h2>
+        <button type="button" class="section-toggle-btn" id="routingRulesBtn">−</button>
+    </div>
+
+    <div class="section-body" id="routingRulesBody">
+        <div th:if="${param.ruleSaved != null}" class="message-success">
+            Routing rule saved successfully.
+        </div>
+
+        <div th:if="${param.ruleExists != null}" class="message-error">
+            Duplicate fallback or exact routing rule already exists, or no new rule was created.
+        </div>
+
+        <div th:if="${param.ruleActivated != null}" class="message-success">
+            Routing rule activated successfully.
+        </div>
+
+        <div th:if="${param.ruleDeactivated != null}" class="message-warning">
+            Routing rule deactivated successfully.
+        </div>
+
+        <div th:if="${param.ruleInvalid != null}" class="message-error">
+            Invalid routing rule input. Transaction type, target department, and priority are required.
+        </div>
+
+        <div th:if="${param.ruleInvalidReference != null}" class="message-error">
+            Routing rule references a missing transaction type or department.
+        </div>
+
+        <div th:if="${param.cloneSuccess != null}" class="message-success">
+            Routing pattern cloned successfully.
+            <br>
+            ✔ Created: <span th:text="${param.created}">0</span>
+            <br>
+            ⚠ Skipped duplicates: <span th:text="${param.skipped}">0</span>
+        </div>
+
+        <div th:if="${param.cloneInvalid != null}" class="message-error">
+            Invalid clone input. Please select both source and target transaction types.
+        </div>
+
+        <div th:if="${param.cloneSame != null}" class="message-error">
+            Source and target transaction type must be different.
+        </div>
+
+        <div th:if="${param.cloneNoSourceRules != null}" class="message-warning">
+            No source routing rules were found for the selected transaction type.
+        </div>
+
+        <div th:if="${param.cloneNoSpecificMatch != null}" class="message-warning">
+            Clone could not continue because source and target specific transactions do not match by order.
+        </div>
+
+        <form th:action="@{/admin/config/routing-rules/clone-pattern}" method="post" style="margin-bottom: 16px;">
+            <div class="form-row form-row-uniform">
+                <div>
+                    <label>Source Transaction Type</label><br>
+                    <select name="sourceTransactionTypeCode" required>
+                        <option value="">-- Select --</option>
+                        <option th:each="tx : ${transactionTypes}"
+                                th:value="${tx.code}"
+                                th:text="${tx.name + ' (' + tx.code + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Target Transaction Type</label><br>
+                    <select name="targetTransactionTypeCode" required>
+                        <option value="">-- Select --</option>
+                        <option th:each="tx : ${transactionTypes}"
+                                th:value="${tx.code}"
+                                th:text="${tx.name + ' (' + tx.code + ')'}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-col-span-2">
+                    <label>Bulk Clone Info</label><br>
+                    <div class="multi-select-help" style="margin-top: 0; padding: 12px 14px; border: 1px solid #cfcfcf; border-radius: 10px; background: #fff;">
+                        This will copy the routing pattern from the source transaction type to the target transaction type
+                        using the specific transaction order.
+                        <br>
+                        Example: SD1 → DP1, SD2 → DP2, SD3 → DP3
+                    </div>
+                </div>
+
+                <div class="action-col">
+                    <button type="submit"
+                            onclick="return confirm('Clone routing pattern from source transaction type to target transaction type?')">
+                        Clone Routing Pattern
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <form th:action="@{/admin/config/routing-rules}" method="post" style="margin-bottom: 16px;">
+            <div class="form-row form-row-uniform">
+
+                <div>
+                    <label>Transaction Type</label><br>
+                    <select name="transactionTypeCode" id="routingTransactionTypeCode" required>
+                        <option value="">-- Select --</option>
+                        <option th:each="tx : ${transactionTypes}"
+                                th:value="${tx.code}"
+                                th:attr="data-id=${tx.id}"
+                                th:text="${tx.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div id="specificTransactionGroup" class="form-col-span-2" style="display:none; position:relative;">
+                    <label>Specific Transactions</label>
+
+                    <div class="custom-dropdown">
+                        <div class="dropdown-selected" onclick="toggleDropdown()">
+                            Select specific transactions
+                        </div>
+
+                        <div id="dropdownOptions" class="dropdown-options">
+                            <div class="dropdown-actions">
+                                <button type="button" onclick="selectAllOptions()">Select All</button>
+                                <button type="button" onclick="clearAllOptions()">Clear</button>
+                            </div>
+
+                            <div class="dropdown-search-wrap">
+                                <input type="text"
+                                       id="dropdownSearch"
+                                       class="dropdown-search-input"
+                                       placeholder="Search specific transaction..."
+                                       oninput="filterDropdownOptions()">
+                            </div>
+
+                            <div id="dropdownCheckboxList">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="multi-select-help">
+                        You can select multiple. Leave empty for fallback rule.
+                    </div>
+                </div>
+
+                <div>
+                    <label>Target Department</label><br>
+                    <select name="targetDepartmentCode" required>
+                        <option value="">-- Select --</option>
+                        <option th:each="d : ${departments}"
+                                th:value="${d.code}"
+                                th:text="${d.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Priority</label><br>
+                    <input type="number" name="priority" value="1" min="1" required>
+                </div>
+
+                <div>
+                    <label>Active</label><br>
+                    <select name="isActive">
+                        <option value="true">YES</option>
+                        <option value="false">NO</option>
+                    </select>
+                </div>
+
+                <div class="action-col">
+                    <button type="submit">Add Routing Rule</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="group-list">
+
+            <div th:if="${#lists.isEmpty(groupedRoutingRules)}" class="message-warning">
+                No routing rules found yet.
+            </div>
+
+            <div th:each="group, stat : ${groupedRoutingRules}" class="group-card">
+                <div class="group-header"
+                     th:onclick="'toggleGroup(' + '\'' + 'routingGroupBody' + ${stat.index} + '\'' + ',' + '\'' + 'routingGroupBtn' + ${stat.index} + '\'' + ')'">
+
+                    <div class="group-left">
+                        <div class="group-title"
+                             th:text="${group.targetDepartmentName} + ' (' + ${group.targetDepartmentCode} + ')'">
+                            Department
+                        </div>
+
+                        <div class="group-subtitle">
+                            Routing rules grouped by target department
+                        </div>
+                    </div>
+
+                    <div class="group-stats">
+                        <span class="stat-badge"
+                              th:text="'Total Rules: ' + ${group.totalCount}">
+                            Total Rules: 0
+                        </span>
+
+                        <span class="stat-badge"
+                              th:text="'Active Rules: ' + ${group.activeCount}">
+                            Active Rules: 0
+                        </span>
+
+                        <button type="button"
+                                class="group-toggle"
+                                th:id="'routingGroupBtn' + ${stat.index}">
+                            Expand
+                        </button>
+                    </div>
+                </div>
+
+                <div class="group-body"
+                     th:id="'routingGroupBody' + ${stat.index}">
+
+                    <div class="group-search-wrap">
+                        <input type="text"
+                               class="group-search-input"
+                               placeholder="Search inside this department group..."
+                               th:attr="oninput=|filterGroupedTable(this, 'routingTableBody${stat.index}')|">
+                    </div>
+
+                    <div class="table-wrap" style="margin-top:0;">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Transaction Type Code</th>
+                                <th>Specific Transaction</th>
+                                <th>Target Department Code</th>
+                                <th>Priority</th>
+                                <th>Active</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody th:id="'routingTableBody' + ${stat.index}">
+                            <tr th:each="r : ${group.rules}">
+                                <td th:text="${r.id}">1</td>
+                                <td th:text="${r.transactionTypeCode}">INTERVIEW</td>
+                                <td th:text="${r.specificTransactionCode} ?: '-'">-</td>
+                                <td th:text="${r.targetDepartmentCode}">RECRUITMENT</td>
+                                <td th:text="${r.priority}">1</td>
+                                <td th:classappend="${r.isActive} ? 'tag-true' : 'tag-false'"
+                                    th:text="${r.isActive} ? 'YES' : 'NO'">YES</td>
+                                <td class="action-links">
+                                    <a th:href="@{|/admin/config/routing-rules/${r.id}/edit|}">Edit</a>
+
+                                    <form th:if="${r.isActive}"
+                                          th:action="@{|/admin/config/routing-rules/${r.id}/deactivate|}"
+                                          method="post"
+                                          class="inline-form">
+                                        <button type="submit"
+                                                class="btn-deactivate"
+                                                onclick="return confirm('Are you sure you want to deactivate this routing rule?')">
+                                            Deactivate
+                                        </button>
+                                    </form>
+
+                                    <form th:if="${!r.isActive}"
+                                          th:action="@{|/admin/config/routing-rules/${r.id}/activate|}"
+                                          method="post"
+                                          class="inline-form">
+                                        <button type="submit" class="btn-activate">Activate</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!----------------------------- USER MANAGEMENT -------------------->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('userManagementBody', 'userManagementBtn')">
+            <h2>User Management</h2>
+            <button type="button" class="section-toggle-btn" id="userManagementBtn">−</button>
+        </div>
+
+        <div class="section-body" id="userManagementBody">
+            <div th:if="${param.userPasswordSaved != null}" class="message-success">
+                User password updated successfully.
+            </div>
+
+            <div th:if="${param.userPasswordInvalid != null}" class="message-error">
+                Invalid password. Password is required and must be at least 4 characters.
+            </div>
+
+            <div th:if="${param.userPasswordMismatch != null}" class="message-error">
+                Password confirmation does not match.
+            </div>
+
+            <div th:if="${param.userSaved != null}" class="message-success">
+                User saved successfully.
+            </div>
+
+            <div th:if="${param.userExists != null}" class="message-error">
+                Username already exists.
+            </div>
+
+            <div th:if="${param.userInvalid != null}" class="message-error">
+                Invalid user input. Username, password, and role are required.
+            </div>
+
+            <div th:if="${param.userInvalidUsername != null}" class="message-error">
+                Username must not contain spaces.
+            </div>
+
+            <div th:if="${param.userDeptRequired != null}" class="message-error">
+                Department is required for STAFF users.
+            </div>
+
+            <div th:if="${param.userDeptInvalid != null}" class="message-error">
+                Selected department is invalid.
+            </div>
+
+            <div th:if="${param.userActivated != null}" class="message-success">
+                User activated successfully.
+            </div>
+
+            <div th:if="${param.userDeactivated != null}" class="message-warning">
+                User deactivated successfully.
+            </div>
+
+            <div th:if="${param.userProtected != null}" class="message-warning">
+                This user is protected and cannot be deactivated.
+            </div>
+
+            <form th:action="@{/admin/config/users}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Username</label><br>
+                        <input type="text" name="username" required placeholder="Example: staff1">
+                    </div>
+
+                    <div class="password-toggle-wrap">
+                        <label>Password</label><br>
+                        <input type="password" id="createUserPassword" name="password" required placeholder="Temporary password">
+                        <span class="password-toggle-icon" onclick="togglePassword('createUserPassword', this)">👁</span>
+                    </div>
+
+                    <div>
+                        <label>Role</label><br>
+                        <select name="role" id="createUserRole" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="STAFF">STAFF</option>
+                        </select>
+                    </div>
+
+                    <div id="createUserDepartmentGroup">
+                        <label>Department</label><br>
+                        <select name="departmentId" id="createUserDepartmentId">
+                            <option value="">-- Select Department --</option>
+                            <option th:each="d : ${departments}"
+                                    th:value="${d.id}"
+                                    th:text="${d.code + ' - ' + d.name}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Active</label><br>
+                        <select name="isActive">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="submit">Add User</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Active</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="u : ${users}">
+                        <td th:text="${u.id}">1</td>
+                        <td th:text="${u.username}">admin</td>
+                        <td th:text="${u.role}">ADMIN</td>
+                        <td th:text="${u.department != null ? u.department.code : '-'}">-</td>
+                        <td th:classappend="${u.isActive} ? 'tag-true' : 'tag-false'"
+                            th:text="${u.isActive} ? 'YES' : 'NO'">YES</td>
+                        <td class="action-links">
+                            <a th:href="@{|/admin/config/users/${u.id}/edit|}">Edit</a>
+                            <a th:href="@{|/admin/config/users/${u.id}/password|}">Reset Password</a>
+
+                            <form th:if="${u.isActive}"
+                                  th:action="@{|/admin/config/users/${u.id}/deactivate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit"
+                                        class="btn-deactivate"
+                                        onclick="return confirm('Are you sure you want to deactivate this user?')">
+                                    Deactivate
+                                </button>
+                            </form>
+
+                            <form th:if="${!u.isActive}"
+                                  th:action="@{|/admin/config/users/${u.id}/activate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit" class="btn-activate">Activate</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------- CLIENT FORM FIELDS ------------------------>
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('clientFieldsBody', 'clientFieldsBtn')">
+            <h2>Client Form Fields</h2>
+            <button type="button" class="section-toggle-btn" id="clientFieldsBtn">−</button>
+        </div>
+
+        <div class="section-body" id="clientFieldsBody">
+            <div th:if="${param.clientFieldSaved != null}" class="message-success">
+                Client form field saved successfully.
+            </div>
+
+            <div th:if="${param.clientFieldExists != null}" class="message-error">
+                Field code already exists.
+            </div>
+
+            <div th:if="${param.clientFieldInvalid != null}" class="message-error">
+                Invalid client field input.
+            </div>
+
+            <div th:if="${param.clientFieldInvalidCode != null}" class="message-error">
+                Field code must not contain spaces.
+            </div>
+
+            <div th:if="${param.clientFieldActivated != null}" class="message-success">
+                Client form field activated successfully.
+            </div>
+
+            <div th:if="${param.clientFieldDeactivated != null}" class="message-warning">
+                Client form field deactivated successfully.
+            </div>
+
+            <form th:action="@{/admin/config/client-fields}" method="post" style="margin-bottom: 16px;">
+                <div class="form-row">
+                    <div>
+                        <label>Label</label><br>
+                        <input type="text" name="label" required placeholder="Example: Contact Number">
+                    </div>
+
+                    <div>
+                        <label>Field Code</label><br>
+                        <input type="text" name="fieldCode" required placeholder="Example: contact_number">
+                    </div>
+
+                    <div>
+                        <label>Field Type</label><br>
+                        <select name="fieldType" required>
+                            <option value="TEXT">TEXT</option>
+                            <option value="NUMBER">NUMBER</option>
+                            <option value="DATE">DATE</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Placeholder</label><br>
+                        <input type="text" name="placeholder" placeholder="Optional placeholder">
+                    </div>
+
+                    <div>
+                        <label>Required</label><br>
+                        <select name="isRequired">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Active</label><br>
+                        <select name="isActive">
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Display Order</label><br>
+                        <input type="number" name="displayOrder" value="1" min="1" required>
+                    </div>
+
+                    <div>
+                        <button type="submit">Add Field</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Label</th>
+                        <th>Field Code</th>
+                        <th>Field Type</th>
+                        <th>Placeholder</th>
+                        <th>Required</th>
+                        <th>Active</th>
+                        <th>Display Order</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="f : ${clientFields}">
+                        <td th:text="${f.id}">1</td>
+                        <td th:text="${f.label}">Contact Number</td>
+                        <td th:text="${f.fieldCode}">contact_number</td>
+                        <td th:text="${f.fieldType}">TEXT</td>
+                        <td th:text="${f.placeholder}">Enter contact number</td>
+                        <td th:text="${f.isRequired} ? 'YES' : 'NO'">YES</td>
+                        <td th:classappend="${f.isActive} ? 'tag-true' : 'tag-false'"
+                            th:text="${f.isActive} ? 'YES' : 'NO'">YES</td>
+                        <td th:text="${f.displayOrder}">1</td>
+                        <td class="action-links">
+                            <a th:href="@{|/admin/config/client-fields/${f.id}/edit|}">Edit</a>
+
+                            <form th:if="${f.isActive}"
+                                  th:action="@{|/admin/config/client-fields/${f.id}/deactivate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit"
+                                        class="btn-deactivate"
+                                        onclick="return confirm('Are you sure you want to deactivate this client form field?')">
+                                    Deactivate
+                                </button>
+                            </form>
+
+                            <form th:if="${!f.isActive}"
+                                  th:action="@{|/admin/config/client-fields/${f.id}/activate|}"
+                                  method="post"
+                                  class="inline-form">
+                                <button type="submit" class="btn-activate">Activate</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!----------------------- CLEAR TICKETS ----------------------->
+<div class="section">
+    <h2>Clear Ticket Data</h2>
+
+    <div th:if="${param.clearInvalid != null}" class="message-error">
+        You must type CLEAR exactly to delete ticket data.
+    </div>
+
+    <div th:if="${param.clearUnauthorized != null}" class="message-error">
+        Invalid secret key for clearing ticket data.
+    </div>
+
+    <div th:if="${param.ticketsCleared != null}" class="message-success">
+        All ticket data cleared successfully.
+    </div>
+
+    <div class="message-warning">
+        WARNING: This will permanently delete all ticket records and queue history from the system.
+    </div>
+
+    <form th:action="@{/admin/config/clear-tickets}" method="post">
+        <div class="form-row">
+            <div>
+                <label>Type CLEAR to confirm</label><br>
+                <input type="text" name="confirmText" placeholder="Type CLEAR" required>
+            </div>
+
+            <div>
+                <label>Secret Key</label><br>
+                <input type="password" name="secretKey" placeholder="Enter clear ticket key" required>
+            </div>
+
+            <div>
+                <button type="submit"
+                        onclick="return confirm('Are you sure you want to delete ALL ticket data? This cannot be undone.')">
+                    Clear Tickets
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!----------------------- SYSTEM RESET ----------------------->
+<div class="section">
+    <h2>System Reset</h2>
+
+    <div th:if="${param.resetSuccess != null}" class="message-success">
+        System reset successfully. All master data cleared.
+    </div>
+
+    <div th:if="${param.resetInvalid != null}" class="message-error">
+        Reset failed. You must type RESET exactly.
+    </div>
+
+    <div th:if="${param.resetUnauthorized != null}" class="message-error">
+        Invalid secret key for system reset.
+    </div>
+
+    <div th:if="${param.resetBlocked != null}" class="message-warning">
+        Reset blocked. Tickets still exist in the system. Clear ticket data first before resetting master data.
+    </div>
+
+    <div class="message-warning">
+        WARNING: This will permanently delete all master data and configuration from the system.
+    </div>
+
+    <form th:action="@{/admin/config/reset}" method="post">
+        <div class="form-row">
+            <div>
+                <label>Type RESET to confirm</label><br>
+                <input type="text" name="confirmText" placeholder="Type RESET" required>
+            </div>
+
+            <div>
+                <label>Secret Key</label><br>
+                <input type="password" name="secretKey" placeholder="Enter reset key" required>
+            </div>
+
+            <div>
+                <button type="submit"
+                        onclick="return confirm('FINAL WARNING: This will delete ALL configuration. Continue?')">
+                    Reset System
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleSection(bodyId, buttonId) {
+        const body = document.getElementById(bodyId);
+        const button = document.getElementById(buttonId);
+
+        if (!body || !button) {
+            return;
+        }
+
+        body.classList.toggle("collapsed");
+
+        const isCollapsed = body.classList.contains("collapsed");
+        button.textContent = isCollapsed ? "+" : "−";
+
+        sessionStorage.setItem(bodyId, isCollapsed ? "collapsed" : "expanded");
+    }
+
+    function restoreSectionState(bodyId, buttonId) {
+        const body = document.getElementById(bodyId);
+        const button = document.getElementById(buttonId);
+
+        if (!body || !button) {
+            return;
+        }
+
+        const savedState = sessionStorage.getItem(bodyId);
+
+        if (savedState === null || savedState === "collapsed") {
+            body.classList.add("collapsed");
+            button.textContent = "+";
+        } else {
+            body.classList.remove("collapsed");
+            button.textContent = "−";
+        }
+    }
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById("dropdownOptions");
+        if (!dropdown) {
+            return;
+        }
+
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+
+    function updateSelectedText() {
+        const checkboxes = document.querySelectorAll("#dropdownCheckboxList input:checked");
+        const selectedDiv = document.querySelector(".dropdown-selected");
+
+        if (!selectedDiv) {
+            return;
+        }
+
+        const count = checkboxes.length;
+
+        if (count === 0) {
+            selectedDiv.textContent = "Select specific transactions";
+        } else if (count === 1) {
+            selectedDiv.textContent = "Selected (1 item)";
+        } else {
+            selectedDiv.textContent = "Selected (" + count + " items)";
+        }
+    }
+
+    function selectAllOptions() {
+        const checkboxes = document.querySelectorAll("#dropdownCheckboxList input[type='checkbox']");
+        checkboxes.forEach(cb => {
+            const label = cb.closest("label");
+            if (!label || label.style.display !== "none") {
+                cb.checked = true;
+            }
+        });
+        updateSelectedText();
+    }
+
+    function clearAllOptions() {
+        const checkboxes = document.querySelectorAll("#dropdownCheckboxList input[type='checkbox']");
+        checkboxes.forEach(cb => cb.checked = false);
+        updateSelectedText();
+    }
+
+    function filterDropdownOptions() {
+        const searchInput = document.getElementById("dropdownSearch");
+        const checkboxList = document.getElementById("dropdownCheckboxList");
+
+        if (!searchInput || !checkboxList) {
+            return;
+        }
+
+        const keyword = searchInput.value.trim().toLowerCase();
+        const labels = checkboxList.querySelectorAll("label");
+
+        labels.forEach(function (label) {
+            const text = label.textContent.toLowerCase();
+            label.style.display = text.includes(keyword) ? "block" : "none";
+        });
+    }
+
+    function togglePassword(fieldId, icon) {
+        const input = document.getElementById(fieldId);
+
+        if (!input || !icon) {
+            return;
+        }
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "🙈";
+        } else {
+            input.type = "password";
+            icon.textContent = "👁";
+        }
+    }
+
+    function toggleGroup(bodyId, buttonId) {
+        const body = document.getElementById(bodyId);
+        const button = document.getElementById(buttonId);
+
+        if (!body || !button) {
+            return;
+        }
+
+        body.classList.toggle("expanded");
+
+        const isExpanded = body.classList.contains("expanded");
+        button.textContent = isExpanded ? "Collapse" : "Expand";
+    }
+
+    function filterGroupedTable(input, tbodyId) {
+        const tbody = document.getElementById(tbodyId);
+
+        if (!tbody || !input) {
+            return;
+        }
+
+        const keyword = input.value.trim().toLowerCase();
+        const rows = tbody.querySelectorAll("tr");
+
+        rows.forEach(function (row) {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(keyword) ? "" : "none";
+        });
+    }
+
+    document.addEventListener("click", function (e) {
+        const dropdown = document.getElementById("dropdownOptions");
+        const container = document.querySelector(".custom-dropdown");
+
+        if (!dropdown || !container) {
+            return;
+        }
+
+        if (!container.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        restoreSectionState("brandingBody", "brandingBtn");
+        restoreSectionState("departmentsBody", "departmentsBtn");
+        restoreSectionState("transactionTypesBody", "transactionTypesBtn");
+        restoreSectionState("specificTransactionsBody", "specificTransactionsBtn");
+        restoreSectionState("routingRulesBody", "routingRulesBtn");
+        restoreSectionState("userManagementBody", "userManagementBtn");
+        restoreSectionState("clientFieldsBody", "clientFieldsBtn");
+
+        const transactionTypeSelect = document.getElementById("routingTransactionTypeCode");
+        const specificTransactionGroup = document.getElementById("specificTransactionGroup");
+        const checkboxList = document.getElementById("dropdownCheckboxList");
+        const selectedDiv = document.querySelector(".dropdown-selected");
+
+        function resetSpecificTransactionDropdown() {
+            if (!specificTransactionGroup || !selectedDiv) {
+                return;
+            }
+
+            if (checkboxList) {
+                checkboxList.innerHTML = "";
+            }
+
+            const searchInput = document.getElementById("dropdownSearch");
+            if (searchInput) {
+                searchInput.value = "";
+            }
+
+            selectedDiv.textContent = "Select specific transactions";
+            specificTransactionGroup.style.display = "none";
+        }
+
+        async function loadSpecificTransactions() {
+            if (!transactionTypeSelect) {
+                return;
+            }
+
+            const selectedOption = transactionTypeSelect.options[transactionTypeSelect.selectedIndex];
+            const transactionTypeId = selectedOption ? selectedOption.getAttribute("data-id") : null;
+
+            resetSpecificTransactionDropdown();
+
+            if (!transactionTypeId) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/config/specific-transactions/by-transaction-type/' + transactionTypeId);
+
+                if (!response.ok) {
+                    console.error("Failed to load specific transactions");
+                    return;
+                }
+
+                const items = await response.json();
+
+                if (!items || items.length === 0 || !checkboxList) {
+                    return;
+                }
+
+                checkboxList.innerHTML = "";
+
+                const searchInput = document.getElementById("dropdownSearch");
+                if (searchInput) {
+                    searchInput.value = "";
+                }
+
+                items.forEach(function (item) {
+                    const label = document.createElement("label");
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = item.code;
+                    checkbox.name = "specificTransactionCodes";
+                    checkbox.addEventListener("change", updateSelectedText);
+
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(" " + item.name));
+
+                    checkboxList.appendChild(label);
+                });
+
+                specificTransactionGroup.style.display = "block";
+                updateSelectedText();
+            } catch (error) {
+                console.error("Error loading specific transactions:", error);
+                resetSpecificTransactionDropdown();
+            }
+        }
+
+        if (transactionTypeSelect) {
+            transactionTypeSelect.addEventListener("change", loadSpecificTransactions);
+            resetSpecificTransactionDropdown();
+        }
+
+        const createUserRole = document.getElementById("createUserRole");
+        const createUserDepartmentGroup = document.getElementById("createUserDepartmentGroup");
+        const createUserDepartmentId = document.getElementById("createUserDepartmentId");
+
+        function toggleCreateUserDepartment() {
+            if (!createUserRole || !createUserDepartmentGroup || !createUserDepartmentId) {
+                return;
+            }
+
+            const needsDepartment = createUserRole.value === "STAFF";
+
+            createUserDepartmentGroup.style.display = needsDepartment ? "block" : "none";
+            createUserDepartmentId.disabled = !needsDepartment;
+
+            if (!needsDepartment) {
+                createUserDepartmentId.value = "";
+            }
+        }
+
+        if (createUserRole) {
+            createUserRole.addEventListener("change", toggleCreateUserDepartment);
+            toggleCreateUserDepartment();
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2/dist/stomp.min.js"></script>
+
+<script>
+    let stompClient = null;
+
+    window.addEventListener("beforeunload", function () {
+        sessionStorage.setItem("adminScrollY", window.scrollY);
+    });
+
+    window.addEventListener("load", function () {
+        const savedScrollY = sessionStorage.getItem("adminScrollY");
+        if (savedScrollY !== null) {
+            window.scrollTo(0, parseInt(savedScrollY, 10));
+            sessionStorage.removeItem("adminScrollY");
+        }
+    });
+
+    function connectAdminRealtime() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/admin', function () {
+                sessionStorage.setItem("adminScrollY", window.scrollY);
+                location.reload();
+            });
+        });
+    }
+
+    connectAdminRealtime();
+</script>
+
+</body>
+</html>
