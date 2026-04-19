@@ -16,8 +16,8 @@
     }
 
     .box {
-        max-width: 650px;   /* 🔥 reduced from 980px */
-        margin: 0 auto;     /* center */
+        max-width: 650px;
+        margin: 0 auto;
         background: white;
         border: 1px solid #ddd;
         border-radius: 14px;
@@ -26,7 +26,7 @@
 
     h2 {
         margin-bottom: 25px;
-        font-size: 32px;   /* smaller */
+        font-size: 32px;
     }
 
     .form-group {
@@ -70,24 +70,32 @@
         font-size: 16px;
         border: none;
         border-radius: 6px;
-        background: #2563eb;   /* 🔥 BLUE */
+        background: #2563eb;
         color: white;
         cursor: pointer;
         transition: 0.2s;
     }
 
     button:hover {
-        background: #1d4ed8;   /* darker blue */
+        background: #1d4ed8;
     }
 
     .msg {
         margin-top: 12px;
         color: #c62828;
+        background: #fdecea;
+        border: 1px solid #f5c2c7;
+        border-radius: 8px;
+        padding: 12px;
     }
 
     .ok {
         margin-top: 12px;
         color: #2e7d32;
+        background: #edf7ed;
+        border: 1px solid #c8e6c9;
+        border-radius: 8px;
+        padding: 12px;
     }
 </style>
 </head>
@@ -110,6 +118,8 @@
     </form>
 
     <div class="msg" th:if="${param.error}">Invalid username or password.</div>
+    <div class="msg" th:if="${param.expired}">Your session expired. Please sign in again.</div>
+    <div class="msg" th:if="${param.denied}">Access denied. Please sign in again.</div>
     <div class="ok" th:if="${param.logout}">Logged out successfully.</div>
 </div>
 

@@ -55,6 +55,14 @@ public class SecurityConfig {
                 .permitAll()
         )
 
+        .sessionManagement(session -> session
+                .invalidSessionUrl("/login?expired")
+        )
+
+        .exceptionHandling(ex -> ex
+                .accessDeniedPage("/login?denied")
+        )
+
         .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/ws/**", "/client/**", "/h2-console/**")
         );
