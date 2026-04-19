@@ -78,8 +78,14 @@ public class RealtimePushService {
             return;
         }
 
+        // 🔥 Convert code → name
+        String deptName = departmentRepository
+                .findByCode(department)
+                .map(d -> d.getName())
+                .orElse(department);
+
         AnnouncementPayload payload =
-                new AnnouncementPayload(id, queueNo, department, status);
+                new AnnouncementPayload(id, queueNo, deptName, status);
 
         messagingTemplate.convertAndSend("/topic/announcements", payload);
     }
